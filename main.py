@@ -1,6 +1,16 @@
 from src.api.adapters import OpenSkyNominatimAdapter
+from src.service import AeroplaneService
+from src.storage.json_storage import JSONAeroplaneStorage
+from src.ui import user_interaction
+
+
+def main() -> None:
+    service = AeroplaneService(
+        api=OpenSkyNominatimAdapter(),
+        storage=JSONAeroplaneStorage("data/aeroplanes.json"),
+    )
+    user_interaction(service)
+
 
 if __name__ == "__main__":
-    adapter = OpenSkyNominatimAdapter()
-    print("Границы Испании:", adapter.get_country_bbox("Spain"))
-    print("Самолётов над Испанией:", len(adapter.get_aeroplanes("Spain")))
+    main()

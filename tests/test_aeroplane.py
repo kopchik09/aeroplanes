@@ -1,6 +1,6 @@
 import pytest
 
-from src.api.aeroplane import Aeroplane
+from src.models.aeroplane import Aeroplane
 
 
 def make_plane(
