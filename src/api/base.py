@@ -4,6 +4,7 @@ from typing import Any
 # Прямоугольник: (южная широта, северная широта, западная долгота, восточная долгота)
 BBox = tuple[float, float, float, float]
 
+
 class AbstractAPIAdapter(ABC):
     """Общий интерфейс для адаптеров сервисов Nominatim и OpenSky.
 

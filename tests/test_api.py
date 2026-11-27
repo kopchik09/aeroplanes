@@ -1,5 +1,6 @@
-import unittest
 from unittest.mock import MagicMock
+
+import pytest
 
 from src.api.adapters import CountryNotFoundError, OpenSkyNominatimAdapter
 
@@ -16,31 +17,29 @@ def make_session(*payloads):
     return session
 
 
-class TestOpenSkyNominatimAdapter(unittest.TestCase):
-    def test_bbox_is_parsed_as_floats(self):
-        session = make_session([{"boundingbox": ["41.0", "43.8", "-9.3", "3.3"]}])
-        bbox = OpenSkyNominatimAdapter(session).get_country_bbox("Spain")
-        self.assertEqual(bbox, (41.0, 43.8, -9.3, 3.3))
-
-    def test_unknown_country_raises(self):
-        session = make_session([])
-        with self.assertRaises(CountryNotFoundError):
-            OpenSkyNominatimAdapter(session).get_country_bbox("Atlantis")
-
-    def test_null_states_returns_empty_list(self):
-        session = make_session({"time": 1, "states": None})
-        result = OpenSkyNominatimAdapter(session).get_aeroplanes_in_bbox((1, 2, 3, 4))
-        self.assertEqual(result, [])
-
-    def test_get_aeroplanes_combines_both_requests(self):
-        session = make_session(
-            [{"boundingbox": ["41.0", "43.8", "-9.3", "3.3"]}],
-            {"time": 1, "states": [["4b1812"]]},
-        )
-        result = OpenSkyNominatimAdapter(session).get_aeroplanes("Spain")
-        self.assertEqual(result, [["4b1812"]])
-        self.assertEqual(session.get.call_count, 2)
+def test_bbox_is_parsed_as_floats():
+    session = make_session([{"boundingbox": ["41.0", "43.8", "-9.3", "3.3"]}])
+    bbox = OpenSkyNominatimAdapter(session).get_country_bbox("Spain")
+    assert bbox == (41.0, 43.8, -9.3, 3.3)
 
 
-if __name__ == "__main__":
-    unittest.main()
+def test_unknown_country_raises():
+    session = make_session([])
+    with pytest.raises(CountryNotFoundError):
+        OpenSkyNominatimAdapter(session).get_country_bbox("Atlantis")
+
+
+def test_null_states_returns_empty_list():
+    session = make_session({"time": 1, "states": None})
+    result = OpenSkyNominatimAdapter(session).get_aeroplanes_in_bbox((1, 2, 3, 4))
+    assert result == []
+
+
+def test_get_aeroplanes_combines_both_requests():
+    session = make_session(
+        [{"boundingbox": ["41.0", "43.8", "-9.3", "3.3"]}],
+        {"time": 1, "states": [["4b1812"]]},
+    )
+    result = OpenSkyNominatimAdapter(session).get_aeroplanes("Spain")
+    assert result == [["4b1812"]]
+    assert session.get.call_count == 2
