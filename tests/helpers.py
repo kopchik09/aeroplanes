@@ -1,6 +1,29 @@
 from src.api.base import AbstractAPIAdapter
 from src.service import AeroplaneService
 from src.storage.json_storage import JSONAeroplaneStorage
+from src.storage.base import AbstractAeroplaneStorage
+
+
+class InMemoryAeroplaneStorage(AbstractAeroplaneStorage):
+    """Хранилище в памяти. Нужно, чтобы проверить: новый коннектор подключается без правок service."""
+
+    def __init__(self):
+        self._planes = []
+
+    def add_aeroplanes(self, aeroplanes):
+        self._planes.extend(aeroplanes)
+
+    def get_aeroplanes(self, criteria=None):
+        return [p for p in self._planes if criteria is None or criteria(p)]
+
+    def delete_aeroplanes(self, criteria):
+        kept = [p for p in self._planes if not criteria(p)]
+        removed = len(self._planes) - len(kept)
+        self._planes = kept
+        return removed
+
+    def close(self):
+        pass
 
 
 def make_state(icao24, callsign, country, altitude, velocity, on_ground=False):

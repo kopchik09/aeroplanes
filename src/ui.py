@@ -1,8 +1,6 @@
 import math
 
-import requests
-
-from src.api.adapters import CountryNotFoundError
+from src.api.base import APIError, CountryNotFoundError
 from src.models.aeroplane import Aeroplane
 from src.service import AeroplaneService
 
@@ -124,7 +122,7 @@ def user_interaction(service: AeroplaneService) -> None:
             action(service)
         except CountryNotFoundError as error:
             print(error)
-        except requests.RequestException as error:
+        except APIError as error:
             print(f"Ошибка сети или API: {error}")
         except ValueError as error:
             print(f"Некорректные данные: {error}")
