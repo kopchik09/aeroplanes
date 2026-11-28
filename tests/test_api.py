@@ -1,8 +1,10 @@
 from unittest.mock import MagicMock
 
 import pytest
+import requests
 
 from src.api.adapters import CountryNotFoundError, OpenSkyNominatimAdapter
+from src.api.base import APIError
 
 
 def make_session(*payloads):
@@ -43,3 +45,14 @@ def test_get_aeroplanes_combines_both_requests():
     result = OpenSkyNominatimAdapter(session).get_aeroplanes("Spain")
     assert result == [["4b1812"]]
     assert session.get.call_count == 2
+
+
+def test_network_error_is_wrapped_in_api_error():
+    session = MagicMock()
+    session.get.side_effect = requests.ConnectionError("нет связи")
+    with pytest.raises(APIError):
+        OpenSkyNominatimAdapter(session).get_country_bbox("Spain")
+
+
+def test_country_not_found_is_api_error():
+    assert issubclass(CountryNotFoundError, APIError)

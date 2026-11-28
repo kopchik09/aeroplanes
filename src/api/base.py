@@ -5,6 +5,14 @@ from typing import Any
 BBox = tuple[float, float, float, float]
 
 
+class APIError(Exception):
+    """Любая ошибка при работе с внешним сервисом: сеть, HTTP-код, неверный ответ."""
+
+
+class CountryNotFoundError(APIError):
+    """Страна не найдена в Nominatim."""
+
+
 class AbstractAPIAdapter(ABC):
     """Общий интерфейс для адаптеров сервисов Nominatim и OpenSky.
 
